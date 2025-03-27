@@ -20,10 +20,12 @@
     <%# Includes all stylesheet files in app/assets/stylesheets %>
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= javascript_include_tag "check_capture", defer: true %>
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <main class="">
+      <%= render 'shared/navbar' %>
       <%= yield %>
     </main>
   </body>

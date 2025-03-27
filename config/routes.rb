@@ -1,35 +1,18 @@
 Rails.application.routes.draw do
-  get "check_invoices/create"
-  get "check_invoices/destroy"
-  get "checks/index"
-  get "checks/new"
-  get "checks/create"
-  get "checks/show"
-  get "checks/edit"
-  get "checks/update"
-  get "checks/destroy"
-  get "invoices/index"
-  get "invoices/new"
-  get "invoices/create"
-  get "invoices/edit"
-  get "invoices/update"
-  get "invoices/destroy"
-  get "companies/index"
-  get "companies/new"
-  get "companies/create"
-  get "companies/edit"
-  get "companies/update"
-  get "companies/destroy"
-  # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
+  root "checks#capture"
 
-  # Reveal health status on /up that returns 200 if the app boots with no exceptions, otherwise 500.
-  # Can be used by load balancers and uptime monitors to verify that the app is live.
-  get "up" => "rails/health#show", as: :rails_health_check
+  resources :companies do
+    resources :invoices, only: [ :index ]
+  end
 
-  # Render dynamic PWA files from app/views/pwa/* (remember to link manifest in application.html.erb)
-  # get "manifest" => "rails/pwa#manifest", as: :pwa_manifest
-  # get "service-worker" => "rails/pwa#service_worker", as: :pwa_service_worker
+  resources :invoices
 
-  # Defines the root path route ("/")
-  # root "posts#index"
+  resources :checks do
+    collection do
+      get "capture"
+      post "process_capture"
+    end
+  end
+
+  resources :check_invoices, only: [ :create, :destroy ]
 end
