@@ -1,5 +1,6 @@
 require "base64"
 require "tempfile"
+
 class ChecksController < ApplicationController
   before_action :load_companies_and_invoices, only: [ :new, :create, :capture, :process_capture ]
 
@@ -33,6 +34,11 @@ class ChecksController < ApplicationController
 
   def process_capture
     @check = Check.new(check_params)
+
+    # Assign the image_data for processing
+    @check.image_data = params[:check][:image_data] if params[:check][:image_data].present?
+
+    # Process the image data into an Active Storage attachment
     process_image_data
 
     # Fetch invoice IDs based on entered numbers
@@ -48,7 +54,6 @@ class ChecksController < ApplicationController
       render :capture, status: :unprocessable_entity
     end
   end
-
 
   def capture
     @check = Check.new
@@ -75,7 +80,7 @@ class ChecksController < ApplicationController
         decoded_data = Base64.decode64(encoded_data)
 
         # Create Tempfile
-        temp_file = Tempfile.new(["check", determine_extension(content_type)], binmode: true)
+        temp_file = Tempfile.new([ "check", determine_extension(content_type) ], binmode: true)
         temp_file.write(decoded_data)
         temp_file.rewind # Important step to avoid closed stream error
 
@@ -89,7 +94,6 @@ class ChecksController < ApplicationController
       Rails.logger.warn "Received image_data does not appear to be a data URL"
     end
   end
-
 
   def determine_extension(content_type)
     case content_type
@@ -111,6 +115,6 @@ class ChecksController < ApplicationController
   end
 
   def check_params
-    params.require(:check).permit(:number, :company_id, :image, :invoice_numbers, invoice_ids: [])
+    params.require(:check).permit(:number, :company_id, :invoice_numbers, :image_data, invoice_ids: [])
   end
 end

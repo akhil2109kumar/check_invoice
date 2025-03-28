@@ -52,7 +52,7 @@
       </div>
 
       <%= form_with model: @check, url: process_capture_checks_path, class: "mt-4", id: "check-form" do |form| %>
-
+        <%= form.hidden_field :image_data, id: "check_image_data" %>
         <div class="mb-4">
           <%= form.label :invoice_numbers, "Invoices", class: "block mb-1 font-medium" %>
           <%= form.text_field :invoice_numbers, class: "w-full p-2 border border-gray-300 rounded", id: "check_invoice_numbers" %>

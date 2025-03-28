@@ -7,6 +7,7 @@ class Check < ApplicationRecord
 
   validates :number, presence: true, uniqueness: { scope: :company_id }
 
+  attr_accessor :image_data
   attr_accessor :invoice_numbers
   after_save :assign_invoices
 

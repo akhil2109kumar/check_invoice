@@ -1,18 +1,21 @@
 // app/javascript/check_capture.js
 
-document.addEventListener('turbo:load', function() {
-  // Use turbo:load instead of DOMContentLoaded for Turbo compatibility
+document.addEventListener('DOMContentLoaded', function() {
   initCheckCapture();
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-  // Keep DOMContentLoaded for initial page load
+// For Turbo compatibility
+document.addEventListener('turbo:load', function() {
   initCheckCapture();
 });
 
 function initCheckCapture() {
   // Only initialize if we're on the capture page
-  if (!document.getElementById('check-capture-container')) return;
+  const container = document.getElementById('check-capture-container');
+  if (!container) {
+    console.log("Not on capture page, exiting initialization");
+    return;
+  }
   
   console.log("Initializing check capture functionality");
   
@@ -25,38 +28,25 @@ function initCheckCapture() {
     previewImage: document.getElementById('preview-image'),
     imageData: document.getElementById('check_image_data'),
     companySelect: document.getElementById('check_company_id'),
-    availableInvoices: document.getElementById('available-invoices'),
-    invoiceList: document.getElementById('invoice-list'),
-    selectedInvoices: document.getElementById('check_invoice_ids'),
     form: document.getElementById('check-form'),
     fileInput: document.getElementById('file-input'),
     startButton: document.getElementById('start-camera-btn'),
     captureButton: document.getElementById('capture-btn'),
     cancelButton: document.getElementById('cancel-btn'),
-    retakeButton: document.getElementById('retake-btn'),
-    uploadButton: document.getElementById('upload-btn')
+    retakeButton: document.getElementById('retake-btn')
   };
   
-  // Verify all elements are found
-  for (const [key, element] of Object.entries(elements)) {
-    if (!element) {
-      console.warn(`Element not found: ${key}`);
-    }
-  }
+  // Debug log all elements
+  console.log("Element status:");
+  Object.entries(elements).forEach(([key, element]) => {
+    console.log(`- ${key}: ${element ? 'Found' : 'MISSING'}`);
+  });
   
   let stream = null;
-  let selectedInvoices = [];
   
   // Check if the browser supports camera access
   const hasGetUserMedia = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-  
-  if (!hasGetUserMedia) {
-    console.warn("This browser does not support camera access.");
-    if (elements.startButton) {
-      elements.startButton.disabled = true;
-      elements.startButton.classList.add("opacity-50", "cursor-not-allowed");
-    }
-  }
+  console.log("Camera API available:", hasGetUserMedia);
   
   // Start camera capture
   async function startCamera() {
@@ -71,7 +61,7 @@ function initCheckCapture() {
       elements.captureInterface.classList.add("hidden");
       elements.cameraContainer.classList.remove("hidden");
       
-      // Request camera access with preference for the environment-facing camera (rear camera on mobile)
+      // Request camera access with preference for the rear camera on mobile
       stream = await navigator.mediaDevices.getUserMedia({
         video: { 
           facingMode: { ideal: 'environment' },
@@ -94,7 +84,7 @@ function initCheckCapture() {
   
   // Take a photo
   function takePhoto() {
-    console.log("Taking photo...");
+    console.log("Take photo function called");
     
     // Create a canvas element to capture the video frame
     const canvas = document.createElement('canvas');
@@ -159,15 +149,9 @@ function initCheckCapture() {
     }
   }
   
-  // Allow user to upload an image instead of using camera
-  function uploadImage() {
-    console.log("Opening file selector");
-    elements.fileInput.click();
-  }
-  
   // Handle file upload
   function handleFileUpload(event) {
-    console.log("Handling file upload");
+    console.log("File upload handler called");
     
     const file = event.target.files[0];
     if (!file) {
@@ -187,9 +171,11 @@ function initCheckCapture() {
       const imageDataUrl = e.target.result;
       console.log("File read successfully, data URL length:", imageDataUrl.length);
       
+      // Set the image source and store the data in the hidden field
       elements.previewImage.src = imageDataUrl;
       elements.imageData.value = imageDataUrl;
       
+      // Show the preview and hide the capture interface
       elements.captureInterface.classList.add("hidden");
       elements.imagePreview.classList.remove("hidden");
     };
@@ -202,136 +188,49 @@ function initCheckCapture() {
     reader.readAsDataURL(file);
   }
   
-  // Load invoices for the selected company
-  function loadInvoices() {
-    const companyId = elements.companySelect.value;
-    if (!companyId) {
-      elements.availableInvoices.innerHTML = '<p class="text-gray-500 italic">Please select a company to see available invoices.</p>';
-      return;
-    }
-    
-    console.log("Loading invoices for company ID:", companyId);
-    
-    // Fetch invoices for the selected company
-    fetch(`/companies/${companyId}/invoices.json`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error(`HTTP error! Status: ${response.status}`);
-        }
-        return response.json();
-      })
-      .then(data => {
-        console.log("Invoices loaded:", data);
-        
-        if (data.length === 0) {
-          elements.availableInvoices.innerHTML = '<p class="text-gray-500">No invoices found for this company.</p>';
-          return;
-        }
-        
-        let html = '<ul class="space-y-2">';
-        data.forEach(invoice => {
-          const isSelected = selectedInvoices.includes(invoice.id.toString());
-          html += `
-            <li class="flex items-center">
-              <input type="checkbox" id="invoice-${invoice.id}" 
-                class="mr-2" data-invoice-id="${invoice.id}" 
-                ${isSelected ? 'checked' : ''}>
-              <label for="invoice-${invoice.id}" class="cursor-pointer">
-                ${invoice.number}
-              </label>
-            </li>
-          `;
-        });
-        html += '</ul>';
-        
-        elements.availableInvoices.innerHTML = html;
-        
-        // Add event listeners to the newly created checkboxes
-        document.querySelectorAll('#available-invoices input[type="checkbox"]').forEach(checkbox => {
-          checkbox.addEventListener('change', toggleInvoice);
-        });
-      })
-      .catch(error => {
-        console.error('Error fetching invoices:', error);
-        elements.availableInvoices.innerHTML = '<p class="text-red-500">Error loading invoices. Please try again.</p>';
-      });
-  }
-  
-  // Toggle invoice selection
-  function toggleInvoice(event) {
-    const invoiceId = event.target.dataset.invoiceId;
-    console.log("Toggling invoice:", invoiceId, "checked:", event.target.checked);
-    
-    if (event.target.checked) {
-      // Add to selected invoices
-      selectedInvoices.push(invoiceId);
-    } else {
-      // Remove from selected invoices
-      selectedInvoices = selectedInvoices.filter(id => id !== invoiceId);
-    }
-    
-    // Update the hidden field and the selected invoices list
-    elements.selectedInvoices.value = selectedInvoices.join(',');
-    updateInvoiceList();
-  }
-  
-  // Update the list of selected invoices
-  function updateInvoiceList() {
-    if (selectedInvoices.length === 0) {
-      elements.invoiceList.innerHTML = '';
-      return;
-    }
-    
-    // Get all selected invoice numbers
-    const selectedCheckboxes = document.querySelectorAll('#available-invoices input[type="checkbox"]:checked');
-    const invoiceNumbers = Array.from(selectedCheckboxes).map(checkbox => {
-      const label = checkbox.nextElementSibling;
-      return label.textContent.trim();
-    });
-    
-    console.log("Selected invoices:", invoiceNumbers);
-    
-    // Display the selected invoice numbers
-    elements.invoiceList.innerHTML = invoiceNumbers.join(', ');
-  }
-  
-  // Set up event listeners
+  // Set up event listeners with direct function assignment for debugging
   function setupEventListeners() {
     console.log("Setting up event listeners");
     
     if (elements.startButton) {
-      elements.startButton.addEventListener('click', startCamera);
-      console.log("Event listener added to start button");
+      elements.startButton.addEventListener('click', function(e) {
+        console.log("Start camera button clicked");
+        e.preventDefault();
+        startCamera();
+      });
+      console.log("Start button listener added");
     }
     
     if (elements.captureButton) {
-      elements.captureButton.addEventListener('click', takePhoto);
-      console.log("Event listener added to capture button");
+      elements.captureButton.addEventListener('click', function(e) {
+        console.log("Capture button clicked");
+        e.preventDefault();
+        takePhoto();
+      });
+      console.log("Capture button listener added");
     }
     
     if (elements.cancelButton) {
-      elements.cancelButton.addEventListener('click', cancelCapture);
-      console.log("Event listener added to cancel button");
+      elements.cancelButton.addEventListener('click', function(e) {
+        console.log("Cancel button clicked");
+        e.preventDefault();
+        cancelCapture();
+      });
+      console.log("Cancel button listener added");
     }
     
     if (elements.retakeButton) {
-      elements.retakeButton.addEventListener('click', retakePhoto);
-      console.log("Event listener added to retake button");
-    }
-    
-    if (elements.uploadButton) {
-      elements.uploadButton.addEventListener('click', uploadImage);
-      console.log("Event listener added to upload button");
+      elements.retakeButton.addEventListener('click', function(e) {
+        console.log("Retake button clicked");
+        e.preventDefault();
+        retakePhoto();
+      });
+      console.log("Retake button listener added");
     }
     
     if (elements.fileInput) {
       elements.fileInput.addEventListener('change', handleFileUpload);
-      console.log("Event listener added to file input");
-    }
-    
-    if (elements.companySelect) {
-      elements.companySelect.addEventListener('change', loadInvoices);
-      console.log("Event listener added to company select");
+      console.log("File input listener added");
     }
     
     // Clean up camera stream when leaving the page
@@ -340,4 +239,5 @@ function initCheckCapture() {
   
   // Initialize the functionality
   setupEventListeners();
+  console.log("Check capture initialized");
 }
