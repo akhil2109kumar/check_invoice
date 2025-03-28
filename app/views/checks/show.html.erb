@@ -1,32 +1,57 @@
-<div class="max-w-sm mx-auto p-4 bg-white shadow-md rounded-md border border-gray-200">
-  <!-- Check Information -->
-  <div class="text-center">
-    <p class="text-sm text-gray-500 font-medium uppercase"><%= @check.company.name %></p>
-    <p class="text-lg font-semibold text-gray-700">Check <%= @check.number %></p>
-    <p class="text-green-600 font-semibold mt-1">Uploaded!</p>
-  </div>
+<div class="container mx-auto mt-8 flex justify-center">
+  <div class="max-w-md w-full p-6 bg-white shadow-lg rounded-lg border border-gray-200">
+    <!-- Check Information Card Header -->
+    <div class="text-center border-b pb-4">
+      <h2 class="text-xl font-bold text-gray-800">Check Details</h2>
+      <div class="mt-4 text-green-600 font-bold flex items-center justify-center">
+        <span class="mr-2">&#x2705;</span> <!-- Unicode checkmark -->
+        <span>Successfully Uploaded</span>
+      </div>
+    </div>
 
-  <!-- Smile Emoji and Invoices -->
-  <div class="flex flex-col items-center mt-4">
-    <span class="text-5xl">😊</span>
-    <p class="text-lg font-medium text-gray-700 mt-2">Invoices</p>
-  </div>
+    <!-- Check Details -->
+    <div class="mt-6 space-y-4">
+      <div class="flex justify-between items-center">
+        <span class="text-gray-600 font-medium">Company:</span>
+        <span class="text-gray-900 font-semibold"><%= @check.company.name %></span>
+      </div>
+      
+      <div class="flex justify-between items-center">
+        <span class="text-gray-600 font-medium">Check Number:</span>
+        <span class="text-gray-900 font-semibold">#<%= @check.number %></span>
+      </div>
+    </div>
 
-  <div id="invoice-list" class="text-center mt-2">
-    <% invoice_numbers = @invoices.map(&:number).join(', ') %>
+    <!-- Invoices Section - CARD STYLE -->
+    <div class="mt-6 pt-4 border-t">
+      <div class="flex items-center mb-3">
+        <span class="text-2xl mr-2">&#x1F4CB;</span> <!-- Unicode clipboard -->
+        <h3 class="text-lg font-semibold text-gray-800">Invoices</h3>
+      </div>
 
-    <% if invoice_numbers.present? %>
-      <p class="text-gray-800 font-medium"><%= invoice_numbers %></p>
-    <% else %>
-      <p class="text-gray-400 italic">No invoices available</p>
-    <% end %>
-  </div>
+      <% if @invoices.present? %>
+        <div class="space-y-2">
+          <% @invoices.each do |invoice| %>
+            <div class="bg-gray-50 p-3 rounded-md flex items-center justify-between border-l-4 border-purple-500">
+              <div>
+                <span class="font-medium text-gray-800">#<%= invoice.number %></span>
+              </div>
+            </div>
+          <% end %>
+        </div>
+      <% else %>
+        <div class="bg-gray-50 p-4 rounded-md text-center">
+          <p class="text-gray-400 italic">No invoices available</p>
+        </div>
+      <% end %>
+    </div>
 
-  <!-- Upload New Check Button -->
-  <div class="mt-6 flex justify-center">
-    <a href="<%= capture_checks_path %>"
-       class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-md hover:bg-blue-600 transition-all">
-      Upload New Check
-    </a>
+    <!-- Upload New Check Button -->
+    <div class="mt-8 flex justify-center">
+      <a href="<%= capture_checks_path %>"
+         class="px-6 py-3 bg-purple-800 text-white font-medium rounded-md shadow-md hover:bg-purple-900 transition-all">
+        Upload New Check
+      </a>
+    </div>
   </div>
 </div>

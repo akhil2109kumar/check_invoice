@@ -1,6 +1,6 @@
 <!-- app/views/checks/capture.html.erb -->
-<div id="check-capture-container" class="container mx-auto mt-4 p-4">
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div id="check-capture-container" class="container mx-auto mt-4 p-4 flex justify-center">
+  <div class="max-w-lg w-full">
     <div class="bg-white p-4 rounded shadow">
       <div class="flex flex-col items-center">
         <h2 class="text-xl font-semibold mb-4">Capture Image</h2>
@@ -43,23 +43,23 @@
         </div>
       </div>
 
-      <%= form_with model: @check, url: process_capture_checks_path, class: "mt-4", id: "check-form" do |form| %>
-        <%= form.hidden_field :image_data, id: "check_image_data" %>
+      <%= form_with model: @check, url: process_capture_checks_path, method: :post, local: true, class: "mt-4" do |form| %>
+        <%= form.hidden_field :image_data %>
         <div class="mb-4">
           <%= form.label :invoice_numbers, "Invoices", class: "block mb-1 font-medium" %>
-          <%= form.text_field :invoice_numbers, class: "w-full p-2 border border-gray-300 rounded", id: "check_invoice_numbers" %>
+          <%= form.text_field :invoice_numbers, class: "w-full p-2 border border-gray-300 rounded", onchange: "checkFormValidity()" %>
         </div>
 
         <div class="mb-4">
           <%= form.label :company_id, "Company", class: "block mb-1 font-medium" %>
           <%= form.collection_select :company_id, @companies, :id, :name,
               { prompt: "Select a company" },
-              { class: "w-full p-2 border border-gray-300 rounded", id: "check_company_id" } %>
+              { class: "w-full p-2 border border-gray-300 rounded", onchange: "checkFormValidity()" } %>
         </div>
 
         <div class="mb-4">
           <%= form.label :number, "Check #", class: "block mb-1 font-medium" %>
-          <%= form.text_field :number, class: "w-full p-2 border border-gray-300 rounded", id: "check_number" %>
+          <%= form.text_field :number, class: "w-full p-2 border border-gray-300 rounded", onchange: "checkFormValidity()" %>
         </div>
 
         <div class="mb-4">
@@ -67,9 +67,37 @@
         </div>
 
         <div class="mt-6">
-          <%= form.submit "Submit", class: "w-full py-3 bg-gray-200 hover:bg-gray-300 rounded text-gray-800 font-semibold" %>
+          <%= form.submit "Submit", id: "submit-btn", class: "w-full py-3 rounded font-semibold", disabled: true %>
         </div>
       <% end %>
     </div>
   </div>
 </div>
+
+<script>
+  function checkFormValidity() {
+    var invoiceNumbers = document.querySelector('input[name="check[invoice_numbers]"]').value;
+    var company = document.querySelector('select[name="check[company_id]"]').value;
+    var checkNumber = document.querySelector('input[name="check[number]"]').value;
+    
+    var submitBtn = document.getElementById('submit-btn');
+    
+    if (invoiceNumbers && company && checkNumber) {
+      submitBtn.disabled = false;
+      submitBtn.className = "w-full py-3 bg-purple-600 rounded text-white font-semibold";
+    } else {
+      submitBtn.disabled = true;
+      submitBtn.className = "w-full py-3 bg-gray-200 rounded text-gray-600 font-semibold";
+    }
+  }
+  
+  // Run on page load
+  document.addEventListener('DOMContentLoaded', function() {
+    checkFormValidity();
+    
+    // Also add input event listeners for real-time validation
+    document.querySelector('input[name="check[invoice_numbers]"]').addEventListener('input', checkFormValidity);
+    document.querySelector('select[name="check[company_id]"]').addEventListener('input', checkFormValidity);
+    document.querySelector('input[name="check[number]"]').addEventListener('input', checkFormValidity);
+  });
+</script>
