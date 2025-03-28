@@ -1,6 +1,5 @@
-# app/controllers/companies_controller.rb
 class CompaniesController < ApplicationController
-  before_action :set_company, only: [ :edit, :update, :destroy ]
+  before_action :set_company, only: %i[edit update]
 
   def index
     @companies = Company.all
@@ -29,11 +28,6 @@ class CompaniesController < ApplicationController
     else
       render :edit, status: :unprocessable_entity
     end
-  end
-
-  def destroy
-    @company.destroy
-    redirect_to companies_path, notice: "Company was successfully deleted."
   end
 
   private

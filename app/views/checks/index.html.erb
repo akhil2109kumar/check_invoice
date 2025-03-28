@@ -23,13 +23,13 @@
         <tbody class="divide-y divide-gray-100">
           <% @checks.each do |check| %>
             <tr>
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"><%= check.created_at.strftime("%d-%m-%Y %I:%M %p") %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"><%= check.created_at.strftime("%d-%m-%Y %I:%M") %></td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.company.name %></td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.number %></td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.invoices.pluck(:number).join(", ") %></td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                 <% if check.image.attached? %>
-                  <%= image_tag check.image.variant(resize: "100x100") %>
+                  <img src="<%= Rails.application.routes.url_helpers.rails_blob_url(check.image, only_path: true) %>" style="width: 200px; height: auto;">
                 <% else %>
                   <span class="text-gray-500">No image</span>
                 <% end %>
