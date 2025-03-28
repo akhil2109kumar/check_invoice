@@ -1,4 +1,32 @@
-<div>
-  <h1 class="font-bold text-4xl">Checks#show</h1>
-  <p>Find me in app/views/checks/show.html.erb</p>
+<div class="max-w-sm mx-auto p-4 bg-white shadow-md rounded-md border border-gray-200">
+  <!-- Check Information -->
+  <div class="text-center">
+    <p class="text-sm text-gray-500 font-medium uppercase"><%= @check.company.name %></p>
+    <p class="text-lg font-semibold text-gray-700">Check <%= @check.number %></p>
+    <p class="text-green-600 font-semibold mt-1">Uploaded!</p>
+  </div>
+
+  <!-- Smile Emoji and Invoices -->
+  <div class="flex flex-col items-center mt-4">
+    <span class="text-5xl">😊</span>
+    <p class="text-lg font-medium text-gray-700 mt-2">Invoices</p>
+  </div>
+
+  <div id="invoice-list" class="text-center mt-2">
+    <% invoice_numbers = @invoices.map(&:number).join(', ') %>
+
+    <% if invoice_numbers.present? %>
+      <p class="text-gray-800 font-medium"><%= invoice_numbers %></p>
+    <% else %>
+      <p class="text-gray-400 italic">No invoices available</p>
+    <% end %>
+  </div>
+
+  <!-- Upload New Check Button -->
+  <div class="mt-6 flex justify-center">
+    <a href="<%= capture_checks_path %>"
+       class="px-4 py-2 bg-blue-500 text-white text-sm font-medium rounded-md shadow-md hover:bg-blue-600 transition-all">
+      Upload New Check
+    </a>
+  </div>
 </div>

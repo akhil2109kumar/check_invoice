@@ -14,18 +14,28 @@
         <thead>
           <tr>
             <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Compant</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Check #</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Company</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Check Number</th>
             <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoices</th>
             <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Image</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr>
-            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">Lindsay Walton</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Front-end Developer</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-purple-600 hover:underline cursor-pointer">Edit</td>
-          </tr>
+          <% @checks.each do |check| %>
+            <tr>
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"><%= check.created_at.strftime("%d-%m-%Y %I:%M %p") %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.company.name %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.number %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.invoices.pluck(:number).join(", ") %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                <% if check.image.attached? %>
+                  <%= image_tag check.image.variant(resize: "100x100") %>
+                <% else %>
+                  <span class="text-gray-500">No image</span>
+                <% end %>
+              </td>
+            </tr>
+          <%end%>
         </tbody>
       </table>
     </div>

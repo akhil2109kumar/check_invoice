@@ -1,14 +1,15 @@
 require "base64"
 require "tempfile"
 class ChecksController < ApplicationController
-  before_action :set_check, only: [ :show, :edit, :update, :destroy ]
-  before_action :load_companies_and_invoices, only: [ :new, :edit, :create, :update, :capture, :process_capture ]
+  before_action :load_companies_and_invoices, only: [ :new, :create, :capture, :process_capture ]
 
   def index
     @checks = Check.includes(:company, :invoices).order(created_at: :desc).all
   end
 
   def show
+    @check = Check.find(params[:id])
+    @invoices = @check.company.invoices
   end
 
   def new
@@ -16,32 +17,38 @@ class ChecksController < ApplicationController
     @company_id = params[:company_id]
   end
 
-  def edit
-  end
-
   def create
     @check = Check.new(check_params)
     process_image_data
 
+    @check.invoice_numbers = params[:check][:invoice_numbers] if params[:check][:invoice_numbers].present?
+
     if @check.save
       redirect_to checks_path, notice: "Check was successfully created."
     else
+      load_companies_and_invoices
       render :new, status: :unprocessable_entity
     end
   end
 
-  def update
-    if @check.update(check_params)
-      redirect_to checks_path, notice: "Check was successfully updated."
+  def process_capture
+    @check = Check.new(check_params)
+    process_image_data
+
+    # Fetch invoice IDs based on entered numbers
+    if params[:check][:invoice_numbers].present?
+      invoice_numbers = params[:check][:invoice_numbers].split(",").map(&:strip)
+      @check.invoice_ids = Invoice.where(number: invoice_numbers, company_id: @check.company_id).pluck(:id)
+    end
+
+    if @check.save
+      redirect_to checks_path, notice: "Check was successfully captured and saved."
     else
-      render :edit, status: :unprocessable_entity
+      load_companies_and_invoices
+      render :capture, status: :unprocessable_entity
     end
   end
 
-  def destroy
-    @check.destroy
-    redirect_to checks_path, notice: "Check was successfully deleted."
-  end
 
   def capture
     @check = Check.new
@@ -53,53 +60,36 @@ class ChecksController < ApplicationController
     end
   end
 
-  def process_capture
-    @check = Check.new(check_params)
-    process_image_data
-
-    if @check.save
-      redirect_to checks_path, notice: "Check was successfully captured and saved."
-    else
-      load_companies_and_invoices
-      render :capture, status: :unprocessable_entity
-    end
-  end
-
   private
 
   def process_image_data
-    # Handle base64 image from webcam/camera if present
-    if params[:check] && params[:check][:image_data].present?
-      # Extract the data URL
-      image_data = params[:check][:image_data]
+    return unless params[:check] && params[:check][:image_data].present?
 
-      # Check if it's a data URL
-      if image_data.start_with?("data:")
-        # Remove the data URL prefix and decode
-        content_type = image_data.split(";")[0].split(":")[1]
-        encoded_data = image_data.split(",")[1]
+    image_data = params[:check][:image_data]
 
-        begin
-          decoded_data = Base64.decode64(encoded_data)
+    if image_data.start_with?("data:")
+      content_type = image_data.split(";")[0].split(":")[1]
+      encoded_data = image_data.split(",")[1]
 
-          # Create a temp file and attach it
-          temp_file = Tempfile.new([ "check", determine_extension(content_type) ])
-          temp_file.binmode
-          temp_file.write(decoded_data)
-          temp_file.rewind
+      begin
+        decoded_data = Base64.decode64(encoded_data)
 
-          @check.image.attach(io: temp_file, filename: "check_#{Time.now.to_i}#{determine_extension(content_type)}", content_type: content_type)
-          temp_file.close
-        rescue => e
-          Rails.logger.error "Error processing image data: #{e.message}"
-          # Don't fail silently in development
-          raise e if Rails.env.development?
-        end
-      else
-        Rails.logger.warn "Received image_data does not appear to be a data URL"
+        # Create Tempfile
+        temp_file = Tempfile.new(["check", determine_extension(content_type)], binmode: true)
+        temp_file.write(decoded_data)
+        temp_file.rewind # Important step to avoid closed stream error
+
+        # Attach file
+        @check.image.attach(io: temp_file, filename: "check_#{Time.now.to_i}#{determine_extension(content_type)}", content_type: content_type)
+
+      ensure
+        temp_file.close unless temp_file.closed?
       end
+    else
+      Rails.logger.warn "Received image_data does not appear to be a data URL"
     end
   end
+
 
   def determine_extension(content_type)
     case content_type
@@ -114,10 +104,6 @@ class ChecksController < ApplicationController
     end
   end
 
-  def set_check
-    @check = Check.find(params[:id])
-  end
-
   def load_companies_and_invoices
     @companies = Company.all
     @invoices = Invoice.all
@@ -125,6 +111,6 @@ class ChecksController < ApplicationController
   end
 
   def check_params
-    params.require(:check).permit(:number, :company_id, :image, invoice_ids: [])
+    params.require(:check).permit(:number, :company_id, :image, :invoice_numbers, invoice_ids: [])
   end
 end

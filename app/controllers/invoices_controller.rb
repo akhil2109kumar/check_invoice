@@ -1,7 +1,6 @@
 # app/controllers/invoices_controller.rb
 class InvoicesController < ApplicationController
-  before_action :set_invoice, only: [ :show, :edit, :update, :destroy ]
-  before_action :load_companies, only: [ :new, :edit, :create, :update ]
+  before_action :load_companies, only: [ :new, :create, ]
 
   def index
     if params[:company_id]
@@ -22,14 +21,8 @@ class InvoicesController < ApplicationController
     end
   end
 
-  def show
-  end
-
   def new
     @invoice = Invoice.new
-  end
-
-  def edit
   end
 
   def create
@@ -40,19 +33,6 @@ class InvoicesController < ApplicationController
     else
       render :new, status: :unprocessable_entity
     end
-  end
-
-  def update
-    if @invoice.update(invoice_params)
-      redirect_to invoices_path, notice: "Invoice was successfully updated."
-    else
-      render :edit, status: :unprocessable_entity
-    end
-  end
-
-  def destroy
-    @invoice.destroy
-    redirect_to invoices_path, notice: "Invoice was successfully deleted."
   end
 
   private

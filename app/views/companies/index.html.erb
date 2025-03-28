@@ -3,30 +3,23 @@
     <div class="flex items-center justify-between mb-4">
       <div>
         <h2 class="text-lg font-semibold text-gray-900">Companies</h2>
-        <p class="mt-1 text-sm text-gray-600">
-          A list of all the companies including their name.
-        </p>
       </div>
-      <button class="inline-flex items-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2">
-        Add Company
-      </button>
-    </div>
+        <%= link_to 'Add Company', new_company_path, class: "inline-flex items-center rounded-md bg-purple-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-purple-700 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"%>
+      </div>
 
     <div class="overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead>
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Ids</th>
             <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Name</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Action</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
-          <tr>
-            <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">Lindsay Walton</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">Front-end Developer</td>
-            <td class="whitespace-nowrap px-6 py-4 text-sm text-purple-600 hover:underline cursor-pointer">Edit</td>
-          </tr>
+          <% @companies.each do |company| %>
+            <tr>
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"><%= company.name %></td>
+            </tr>
+          <%end%>
         </tbody>
       </table>
     </div>
