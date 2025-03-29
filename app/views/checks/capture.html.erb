@@ -4,7 +4,6 @@
       <div class="flex flex-col items-center">
         <h2 class="text-xl font-semibold mb-4">Capture Image</h2>
 
-        <!-- Camera/Image Capture UI -->
         <div class="w-full relative">
           <div id="capture-interface" class="mb-4">
             <button id="start-camera-btn" type="button" class="w-full py-3 px-4 border border-gray-300 rounded-md text-lg font-semibold bg-blue-50 hover:bg-blue-100">
@@ -12,7 +11,6 @@
             </button>
           </div>
 
-          <!-- Camera stream (hidden initially) -->
           <div id="camera-container" class="hidden">
             <video id="camera-stream" class="w-full rounded-lg border border-gray-300" autoplay playsinline></video>
             <div class="mt-2 text-center">
@@ -25,7 +23,6 @@
             </div>
           </div>
 
-          <!-- Preview captured image (hidden initially) -->
           <div id="image-preview" class="hidden">
             <div class="relative">
               <img id="preview-image" src="" class="w-full rounded-lg border border-gray-300" />
@@ -101,41 +98,35 @@
   document.addEventListener('DOMContentLoaded', function() {
     checkFormValidity();
     
-    // Add event listeners for form fields
     document.querySelector('input[name="check[invoice_numbers]"]').addEventListener('input', checkFormValidity);
     document.querySelector('select[name="check[company_id]"]').addEventListener('input', checkFormValidity);
     document.querySelector('input[name="check[number]"]').addEventListener('input', checkFormValidity);
     document.querySelector('input[name="check[image_data]"]').addEventListener('input', checkFormValidity);
 
-    // Handle image capture logic
     document.getElementById('capture-btn').addEventListener('click', function() {
-      // Capture image from video stream (this is an example, adjust as needed)
       var video = document.getElementById('camera-stream');
       var canvas = document.createElement('canvas');
       canvas.width = video.videoWidth;
       canvas.height = video.videoHeight;
       var ctx = canvas.getContext('2d');
       ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      var imageData = canvas.toDataURL('image/png'); // Get base64 image data
+      var imageData = canvas.toDataURL('image/png');
 
-      // Set the image data to the hidden field
       document.querySelector('input[name="check[image_data]"]').value = imageData;
 
-      // Display the image preview
       document.getElementById('camera-container').classList.add('hidden');
       document.getElementById('image-preview').classList.remove('hidden');
-      document.getElementById('preview-image').src = imageData; // Set the preview image to the captured data
+      document.getElementById('preview-image').src = imageData;
 
-      checkFormValidity(); // Recheck form validity
+      checkFormValidity();
     });
 
-    // Retake image logic (reset form and camera)
     document.getElementById('retake-btn').addEventListener('click', function() {
       document.getElementById('image-preview').classList.add('hidden');
       document.getElementById('capture-btn').classList.remove('hidden');
       document.getElementById('camera-container').classList.remove('hidden');
       document.getElementById('start-camera-btn').classList.remove('hidden');
-      document.querySelector('input[name="check[image_data]"]').value = ''; // Clear the hidden image field
+      document.querySelector('input[name="check[image_data]"]').value = '';
       checkFormValidity();
     });
   });
