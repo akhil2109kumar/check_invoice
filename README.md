@@ -1,24 +1,45 @@
-# README
+# Requirements
 
-This README would normally document whatever steps are necessary to get the
-application up and running.
+- **Ruby Version:** 3.4.1
+- **Database:** PostgreSQL
 
-Things you may want to cover:
+## Setup & Installation
 
-* Ruby version
+### Clone the Repository
+```sh
+git clone https://github.com/akhil2109kumar/check_invoice.git
+cd check_invoice
+```
 
-* System dependencies
+### Install Dependencies
+```sh
+bundle install
+rails assets:precompile
+```
 
-* Configuration
+## Database Setup
 
-* Database creation
+### Create & Migrate Database
+```sh
+rails db:create
+rails db:migrate
+```
 
-* Database initialization
+### Seed Initial Data
+```sh
+rails db:seed
+```
 
-* How to run the test suite
+## Running the Application
 
-* Services (job queues, cache servers, search engines, etc.)
+### Start the Rails server
+```sh
+rails server
+```
 
-* Deployment instructions
+## Running Tests
 
-* ...
+To run the test suite, execute:
+```sh
+bundle exec rspec
+```
