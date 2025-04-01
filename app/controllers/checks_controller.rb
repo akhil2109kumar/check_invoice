@@ -23,7 +23,7 @@ class ChecksController < ApplicationController
     process_image_data
 
     if save_check_with_invoices
-      redirect_to checks_path, notice: "Check was successfully created."
+      redirect_to checks_path
     else
       load_companies_and_invoices
       render :capture, status: :unprocessable_entity
@@ -43,11 +43,23 @@ class ChecksController < ApplicationController
     assign_invoice_ids_from_params if params[:check][:invoice_ids].present?
 
     if @check.save
-      redirect_to check_path(@check), notice: "Check was successfully captured and saved."
+      redirect_to check_path(@check)
     else
       load_companies_and_invoices
       render :capture, status: :unprocessable_entity
     end
+  end
+
+  def unique_check_number
+    check_number = params[:check_number]
+    exists = Check.exists?(number: check_number)
+    render json: { exists: exists }
+  end
+
+  def unique_invoice_numbers
+    invoice_numbers = params[:invoice_numbers].split(",").map(&:strip)
+    exists = CheckInvoice.joins(:invoice).where(invoices: { number: invoice_numbers }).exists?
+    render json: { exists: exists }
   end
 
   private

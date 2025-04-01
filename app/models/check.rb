@@ -5,8 +5,6 @@ class Check < ApplicationRecord
 
   has_one_attached :image
 
-  validates :number, presence: true, uniqueness: { scope: :company_id, message: "Check number should be unique within the company" }
-
   attr_accessor :image_data
   attr_accessor :invoice_numbers
   after_save :assign_invoices
