@@ -1,22 +1,31 @@
 <div class="p-6">
-  <div class="bg-white rounded-lg shadow px-4 py-5 sm:p-6">
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead>
+  <div class="bg-white rounded-lg shadow-lg px-6 py-6 sm:p-8">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-semibold text-gray-900">Invoices</h2>
+        <p class="mt-1 text-sm text-gray-600">Details of Invoices</p>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+     <table class="divide-y divide-gray-200 table-auto" style="width: 80%;">
+        <thead class="bg-gray-100 text-gray-700">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoice</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Company</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Check</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Invoice</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Company</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Check</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <% @invoices.each do |invoice| %>
-            <tr>
+            <tr class="hover:bg-gray-50 transition-all duration-300 ease-in-out">
               <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"><%= invoice.number %></td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= invoice.company.name %></td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500 "><%= invoice.checks.pluck(:number).join('') %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                <%= invoice.checks.pluck(:number).join(", ") %>
+              </td>
             </tr>
-          <%end%>
+          <% end %>
         </tbody>
       </table>
     </div>

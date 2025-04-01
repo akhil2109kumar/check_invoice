@@ -1,41 +1,43 @@
 <div class="p-6">
-  <div class="bg-white rounded-lg shadow px-4 py-5 sm:p-6">
-    <div class="flex items-center justify-between mb-4">
+  <div class="bg-white rounded-lg shadow-lg px-6 py-6 sm:p-8">
+    <div class="flex items-center justify-between mb-6">
       <div>
-        <h2 class="text-lg font-semibold text-gray-900">Checks</h2>
-        <p class="mt-1 text-sm text-gray-600">
-          Details of Checks
-        </p>
+        <h2 class="text-2xl font-semibold text-gray-900">Checks</h2>
+        <p class="mt-1 text-sm text-gray-600">Details of Checks</p>
       </div>
     </div>
 
-    <div class="overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead>
+    <div class="overflow-x-auto bg-white shadow-md rounded-lg">
+      <table class="min-w-full divide-y divide-gray-200 table-auto">
+        <thead class="bg-gray-100 text-gray-700">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Date</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Company</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Check Number</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Invoices</th>
-            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold text-gray-900">Image</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Date</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Company</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Check Number</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Invoices</th>
+            <th scope="col" class="px-6 py-3 text-left text-sm font-semibold">Image</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-100">
           <% @checks.each do |check| %>
-            <tr>
-              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900"><%= check.created_at.in_time_zone('Asia/Kolkata').strftime("%d-%m-%Y %I:%M %p")%></td>
+            <tr class="hover:bg-gray-50 transition-all duration-300 ease-in-out">
+              <td class="whitespace-nowrap px-6 py-4 text-sm font-medium text-gray-900">
+                <%= check.created_at.in_time_zone('Asia/Kolkata').strftime("%d-%m-%Y %I:%M %p") %>
+              </td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.company.name %></td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.number %></td>
-              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500"><%= check.invoices.pluck(:number).join(", ") %></td>
+              <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
+                <%= check.invoices.pluck(:number).join(", ") %>
+              </td>
               <td class="whitespace-nowrap px-6 py-4 text-sm text-gray-500">
                 <% if check.image.attached? %>
-                  <img src="<%= Rails.application.routes.url_helpers.rails_blob_url(check.image, only_path: true) %>" style="width: 200px; height: auto;">
+                  <img src="<%= Rails.application.routes.url_helpers.rails_blob_url(check.image, only_path: true) %>" class="w-24 h-auto rounded-lg shadow-md">
                 <% else %>
                   <span class="text-gray-500">No image</span>
                 <% end %>
               </td>
             </tr>
-          <%end%>
+          <% end %>
         </tbody>
       </table>
     </div>

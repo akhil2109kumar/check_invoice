@@ -11,12 +11,12 @@
     <div class="mt-6 space-y-4">
       <div class="flex justify-between items-center">
         <span class="text-gray-600 font-medium">Company:</span>
-        <span class="text-gray-900 font-semibold"><%= @check.company.name %></span>
+        <span class="text-gray-900 font-semibold"><%= @check.company.name.upcase %></span>
       </div>
-      
+
       <div class="flex justify-between items-center">
         <span class="text-gray-600 font-medium">Check Number:</span>
-        <span class="text-gray-900 font-semibold">#<%= @check.number %></span>
+        <span class="text-gray-900 font-semibold"><%= @check.number %></span>
       </div>
     </div>
 
@@ -31,7 +31,7 @@
           <% @invoices.each do |invoice| %>
             <div class="bg-gray-50 p-3 rounded-md flex items-center justify-between border-l-4 border-purple-500">
               <div>
-                <span class="font-medium text-gray-800">#<%= invoice.number %></span>
+                <span class="font-medium text-gray-800"><%= invoice.number %></span>
               </div>
             </div>
           <% end %>
